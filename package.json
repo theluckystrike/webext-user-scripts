@@ -37,7 +37,8 @@
     "manifest-v3",
     "chrome",
     "browser-extension",
-    "webext"
+    "webext",
+    "developer-tools"
   ],
   "author": "theluckystrike",
   "license": "MIT",
