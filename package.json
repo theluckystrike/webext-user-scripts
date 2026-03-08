@@ -1,7 +1,7 @@
 {
   "name": "webext-user-scripts",
   "version": "1.0.0",
-  "description": "A TypeScript-friendly wrapper for the Chrome User Scripts API (Manifest V3)",
+  "description": "Typed userScripts API helpers for Chrome extensions. Part of @zovo/webext.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -15,8 +15,13 @@
   "keywords": [
     "chrome-extension",
     "user-scripts",
+    "userscripts",
     "typescript",
-    "manifest-v3"
+    "webextension",
+    "browser-extension",
+    "manifest-v3",
+    "script-injection",
+    "tampermonkey"
   ],
   "author": "theluckystrike",
   "license": "MIT",
