@@ -1,39 +1,96 @@
 # Contributing to webext-user-scripts
 
-Thanks for your interest in contributing! This project follows a standard GitHub workflow.
+Thank you for your interest in contributing! This guide will help you get started.
 
 ## Getting Started
 
-1. **Fork** the repository
-2. **Clone** your fork:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/webext-user-scripts.git
-   cd webext-user-scripts
-   ```
+### Fork the Repository
 
-3. **Install dependencies**:
-   ```bash
-   pnpm install
-   ```
+Click the "Fork" button on the GitHub page to create your own copy of the repository.
 
-4. **Create a feature branch**:
-   ```bash
-   git checkout -b my-feature
-   ```
+### Clone Your Fork
+
+```bash
+git clone https://github.com/YOUR_USERNAME/webext-user-scripts.git
+cd webext-user-scripts
+```
+
+### Install Dependencies
+
+This project uses [pnpm](https://pnpm.io/) for package management:
+
+```bash
+pnpm install
+```
+
+### Create a Branch
+
+Create a new branch for your feature or fix:
+
+```bash
+git checkout -b feature/your-feature-name
+```
+
+Or for bug fixes:
+
+```bash
+git checkout -b fix/description-of-fix
+```
 
 ## Development
 
-- **Run tests**: `pnpm test`
-- **Build**: `pnpm build`
-- **Type check**: `pnpm exec tsc --noEmit`
+### Build the Project
 
-## Pull Request
+```bash
+pnpm build
+```
 
-1. Make your changes
-2. Ensure all tests pass
-3. Push to your fork
-4. Open a Pull Request against `main`
+### Run Tests
 
-## License
+```bash
+pnpm test
+```
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+### Type Checking
+
+```bash
+pnpm typecheck
+```
+
+## Making Changes
+
+1. Make your changes in the `src/` directory
+2. Ensure all tests pass: `pnpm test`
+3. Verify the build works: `pnpm build`
+4. Commit your changes with a descriptive message
+
+## Pull Request Process
+
+1. **Push your branch** to your fork:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+2. **Open a Pull Request** against the `main` branch of the original repository
+
+3. **Describe your changes** clearly in the PR description:
+   - What problem does this fix?
+   - What solution does it provide?
+   - How can reviewers test this?
+
+4. **Ensure CI passes** — all tests and builds must succeed
+
+## Code Style
+
+- Use TypeScript with strict mode enabled
+- Follow existing code conventions in the project
+- Add JSDoc comments for public APIs
+- Write tests for new functionality
+
+## Questions?
+
+If you have questions about contributing, feel free to open an issue for discussion.
+
+---
+
+Thank you for helping improve **webext-user-scripts**!

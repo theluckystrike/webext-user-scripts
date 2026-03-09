@@ -4,22 +4,17 @@
   "description": "Typed helpers for the Chrome userScripts API — register, update, and manage user scripts in Manifest V3 extensions. Part of @zovo/webext.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "module": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.js"
     }
-  },
-  "files": [
-    "dist"
-  ],
-  "sideEffects": false,
-  "scripts": {
-    "build": "tsc",
-    "test": "vitest run",
-    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -29,19 +24,25 @@
   "bugs": {
     "url": "https://github.com/theluckystrike/webext-user-scripts/issues"
   },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
   "keywords": [
     "chrome-extension",
     "user-scripts",
     "typescript",
     "manifest-v3",
-    "webext",
-    "zovo",
-    "browser-extension",
-    "userscript"
+    "chrome-user-scripts",
+    "webextension",
+    "content-scripts",
+    "browser-extension"
   ],
-  "engines": {
-    "node": ">=18"
-  },
   "author": "theluckystrike",
   "license": "MIT",
   "devDependencies": {
