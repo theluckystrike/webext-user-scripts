@@ -1,28 +1,47 @@
 {
   "name": "webext-user-scripts",
   "version": "1.0.0",
-  "description": "Typed userScripts API helpers for Chrome extensions. Part of @zovo/webext.",
+  "description": "Typed helpers for the Chrome userScripts API — register, update, and manage user scripts in Manifest V3 extensions. Part of @zovo/webext.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
   "files": [
     "dist"
   ],
+  "sideEffects": false,
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
     "prepublishOnly": "npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theluckystrike/webext-user-scripts.git"
+  },
+  "homepage": "https://github.com/theluckystrike/webext-user-scripts#readme",
+  "bugs": {
+    "url": "https://github.com/theluckystrike/webext-user-scripts/issues"
+  },
   "keywords": [
     "chrome-extension",
     "user-scripts",
-    "userscripts",
     "typescript",
-    "webextension",
-    "browser-extension",
     "manifest-v3",
-    "script-injection",
-    "tampermonkey"
+    "webext",
+    "zovo",
+    "browser-extension",
+    "userscript"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "author": "theluckystrike",
   "license": "MIT",
   "devDependencies": {

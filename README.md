@@ -1,108 +1,154 @@
-<div align="center">
-
 # webext-user-scripts
 
-Typed userScripts API helpers for Chrome extensions. Register, update, and manage user scripts in Manifest V3.
-
 [![npm version](https://img.shields.io/npm/v/webext-user-scripts)](https://www.npmjs.com/package/webext-user-scripts)
-[![npm downloads](https://img.shields.io/npm/dm/webext-user-scripts)](https://www.npmjs.com/package/webext-user-scripts)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
-![npm bundle size](https://img.shields.io/bundlephobia/minzip/webext-user-scripts)
+[![GitHub stars](https://img.shields.io/github/stars/theluckystrike/webext-user-scripts)](https://github.com/theluckystrike/webext-user-scripts/stargazers)
+[![License](https://img.shields.io/github/license/theluckystrike/webext-user-scripts)](LICENSE)
+[![Node.js CI](https://github.com/theluckystrike/webext-user-scripts/actions/workflows/ci.yml/badge.svg)](https://github.com/theluckystrike/webext-user-scripts/actions/workflows/ci.yml)
 
-[Installation](#installation) · [Quick Start](#quick-start) · [API](#api) · [License](#license)
+Typed helpers for the Chrome userScripts API — register, update, and manage user scripts in Manifest V3 extensions.
 
-</div>
+## Why This Library?
 
----
+The Chrome [User Scripts API](https://developer.chrome.com/docs/extensions/develop/concepts/user-scripts) is powerful but new in Manifest V3. Unlike content scripts declared in the manifest, user scripts offer:
+
+- **Dynamic registration** — Register/unregister without reloading the extension
+- **Isolated world** — Run scripts in their own JavaScript context
+- **No manifest changes** — Add/modify scripts without touching manifest.json
+- **MAIN world execution** — Run in the same context as the page's JavaScript
+
+The raw API can be tricky with TypeScript. This library provides a clean, typed wrapper.
 
 ## Features
 
-- **Register scripts** -- inject user scripts into matching pages
-- **Update scripts** -- modify registered scripts at runtime
-- **Unregister** -- remove scripts cleanly
-- **Get all** -- list currently registered user scripts
-- **World configuration** -- configure the user script execution world
-- **Typed** -- full TypeScript support for the MV3 userScripts API
+- `register` — Register user scripts with full type safety
+- `update` — Update existing scripts
+- `unregister` / `unregisterAll` — Remove scripts
+- `getRegistered` / `getById` — List and find scripts
+- `isRegistered` — Check script existence
+- **World config** — Support for both `USER_SCRIPT` and `MAIN` worlds
 
 ## Installation
 
 ```bash
 npm install webext-user-scripts
-```
-
-<details>
-<summary>Other package managers</summary>
-
-```bash
-pnpm add webext-user-scripts
 # or
-yarn add webext-user-scripts
+pnpm add webext-user-scripts
 ```
 
-</details>
+## Requirements
 
-## Quick Start
+- **Chrome 120+** (Chromium-based browsers supporting User Scripts API)
+- **Manifest V3**
+- **Permission**: `"userScripts"` in manifest.json
+- **Developer mode**: Must be enabled in `chrome://extensions`
+
+```json
+{
+  "permissions": ["userScripts"]
+}
+```
+
+## Usage
+
+### Basic Registration
 
 ```typescript
-import { UserScripts } from "webext-user-scripts";
+import { UserScripts } from 'webext-user-scripts';
 
 await UserScripts.register([{
-  id: "my-script",
-  matches: ["*://example.com/*"],
-  js: [{ code: 'console.log("injected!")' }],
+  id: 'my-script',
+  matches: ['https://*.google.com/*'],
+  js: [{ code: 'console.log("Hello from user script!");' }],
+  world: 'USER_SCRIPT'
 }]);
-
-const scripts = await UserScripts.getAll();
-await UserScripts.unregister(["my-script"]);
 ```
 
-## API
+### Managing Scripts
+
+```typescript
+const scripts = await UserScripts.getRegistered();
+const script = await UserScripts.getById('my-script');
+const exists = await UserScripts.isRegistered('my-script');
+
+await UserScripts.update([{ id: 'my-script', runAt: 'document_start' }]);
+await UserScripts.unregister({ ids: ['my-script'] });
+await UserScripts.unregisterAll();
+```
+
+### Using External Files
+
+```typescript
+await UserScripts.register([{
+  id: 'content-script',
+  matches: ['https://*.example.com/*'],
+  js: [{ file: 'user-script.js' }],
+  world: 'USER_SCRIPT',
+  runAt: 'document_end'
+}]);
+```
+
+### MAIN World Execution
+
+```typescript
+await UserScripts.register([{
+  id: 'main-world-script',
+  matches: ['https://*.example.com/*'],
+  js: [{ code: 'window.myExtensionAPI.init();' }],
+  world: 'MAIN'
+}]);
+```
+
+## API Reference
 
 | Method | Description |
 |--------|-------------|
-| `register(scripts)` | Register user scripts |
-| `update(scripts)` | Update registered scripts |
-| `unregister(ids)` | Unregister scripts by ID |
-| `getAll()` | List all registered user scripts |
-| `configureWorld(config)` | Configure the user script execution world |
+| `register(scripts)` | Register one or more user scripts |
+| `getRegistered(filter?)` | Get all registered scripts, optionally filtered |
+| `getById(id)` | Get a specific script by ID |
+| `isRegistered(id)` | Check if a script exists |
+| `update(scripts)` | Update existing scripts |
+| `unregister(filter)` | Unregister scripts by ID(s) |
+| `unregisterAll()` | Unregister all user scripts |
 
-## Permissions
+### Types
 
-```json
-{ "permissions": ["userScripts"] }
+```typescript
+interface UserScript {
+  id: string;
+  matches?: string[];
+  excludeMatches?: string[];
+  js?: { code?: string; file?: string }[];
+  runAt?: 'document_start' | 'document_end' | 'document_idle';
+  allFrames?: boolean;
+  world?: 'USER_SCRIPT' | 'MAIN';
+}
+
+interface UserScriptFilter {
+  ids?: string[];
+}
 ```
+
+## Browser Support
+
+| Browser | Version |
+|---------|---------|
+| Chrome | 120+ |
+| Edge | 120+ |
+| Opera | 106+ |
+| Brave | 1.60+ |
 
 ## Part of @zovo/webext
 
-This package is part of the [@zovo/webext](https://github.com/theluckystrike) family -- typed, modular utilities for Chrome extension development:
+This package is part of **@zovo/webext** — typed helpers for Chrome extensions:
 
-| Package | Description |
-|---------|-------------|
-| [webext-storage](https://github.com/theluckystrike/webext-storage) | Typed storage with schema validation |
-| [webext-messaging](https://github.com/theluckystrike/webext-messaging) | Type-safe message passing |
-| [webext-tabs](https://github.com/theluckystrike/webext-tabs) | Tab query helpers |
-| [webext-cookies](https://github.com/theluckystrike/webext-cookies) | Promise-based cookies API |
-| [webext-i18n](https://github.com/theluckystrike/webext-i18n) | Internationalization toolkit |
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- [webext-user-scripts](https://github.com/theluckystrike/webext-user-scripts) — User Scripts API
+- [webext-storage](https://github.com/theluckystrike/webext-storage) — Storage API
+- [webext-messaging](https://github.com/theluckystrike/webext-messaging) — Type-safe messaging
 
 ## License
 
-MIT License -- see [LICENSE](LICENSE) for details.
+MIT License — see [LICENSE](LICENSE).
 
 ---
 
-<div align="center">
-
-Built by [theluckystrike](https://github.com/theluckystrike) · [zovo.one](https://zovo.one)
-
-</div>
+Built at [zovo.one](https://zovo.one) by [theluckystrike](https://github.com/theluckystrike)
