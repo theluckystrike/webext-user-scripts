@@ -1,30 +1,30 @@
 # webext-user-scripts
 
 [![npm version](https://img.shields.io/npm/v/webext-user-scripts.svg)](https://www.npmjs.com/package/webext-user-scripts)
-[![npm downloads](https://img.shields.io/npm/dm/webext-user-scripts.svg)](https://www.npmjs.com/package/webext-user-scripts)
-[![License](https://img.shields.io/npm/l/webext-user-scripts.svg)](https://github.com/theluckystrike/webext-user-scripts/blob/main/LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-3178c6.svg)](https://www.typescriptlang.org/)
+[![CI](https://github.com/theluckystrike/webext-user-scripts/actions/workflows/ci.yml/badge.svg)](https://github.com/theluckystrike/webext-user-scripts/actions/workflows/ci.yml)
 
-A TypeScript-friendly wrapper for the Chrome [User Scripts API](https://developer.chrome.com/docs/extensions/reference/api/userScripts) in Manifest V3 extensions.
+Typed helpers for the Chrome [UserScripts API](https://developer.chrome.com/docs/extensions/reference/api/userScripts) — register, update, and manage user scripts in Manifest V3.
 
-## Why This Package?
+## Why This Library?
 
-The Chrome User Scripts API is a powerful but relatively new API introduced in Chrome 120+. It allows extensions to register user scripts that run in isolated worlds, providing a cleaner alternative to content scripts for many use cases. However, the raw API lacks TypeScript support and has some quirks that make it tedious to use directly.
+The Chrome UserScripts API is a powerful but relatively new API introduced in Chrome 120+. It allows extensions to register user scripts that run in web pages with access to the extension's DOM APIs, separate from content scripts. However, the raw API is:
 
-**webext-user-scripts** provides:
-- Full TypeScript definitions with autocomplete
-- A clean, promise-based API
-- Helpful utility methods (`isRegistered`, `getById`, `unregisterAll`)
-- Proper error handling
+- **Poorly documented** — The official Chrome documentation provides minimal guidance
+- **Tricky to use correctly** — Type safety is lacking, and error handling is verbose
+- **New and unfamiliar** — Many developers aren't aware of its capabilities
+
+This library provides a **type-safe, promise-based wrapper** that makes working with user scripts simple and safe.
 
 ## Features
 
-- **Register** user scripts with full type safety
-- **Update** existing registered scripts
-- **Unregister** individual scripts or all at once
-- **List** all registered scripts with optional filtering
-- **World configuration** — run scripts in `USER_SCRIPT` (isolated) or `MAIN` (DOM-accessible) worlds
-- **Manifest V3** compatible — works with Chrome 120+
+- **Register user scripts** — Easily register one or more user scripts with full type safety
+- **Update scripts** — Modify existing registered scripts in place
+- **Unregister scripts** — Remove scripts by ID or unregister all at once
+- **List registered scripts** — Query all registered scripts with optional filtering
+- **World configuration** — Support for both `USER_SCRIPT` and `MAIN` execution worlds
+- **Part of @zovo/webext** — Designed to work seamlessly with other Zovo web extension utilities
 
 ## Installation
 
@@ -44,253 +44,163 @@ Or with yarn:
 yarn add webext-user-scripts
 ```
 
-## Usage Examples
+## Quick Start
 
-### Basic Registration
-
-Register a simple user script that runs on specific pages:
+### Register a User Script
 
 ```typescript
 import { UserScripts } from 'webext-user-scripts';
 
-await UserScripts.register([{
-  id: 'my-script',
-  matches: ['https://*.example.com/*'],
-  js: [{ code: 'console.log("Hello from user script!");' }],
-  world: 'USER_SCRIPT'
-}]);
+await UserScripts.register([
+  {
+    id: 'my-script',
+    matches: ['https://*.google.com/*', 'https://example.com/*'],
+    js: [{ code: 'console.log("Hello from user script!");' }],
+    world: 'USER_SCRIPT',
+    runAt: 'document_start',
+    allFrames: false,
+  },
+]);
 ```
 
-### Using External Files
-
-Load user scripts from external files:
+### Update a User Script
 
 ```typescript
-import { UserScripts } from 'webext-user-scripts';
-
-await UserScripts.register([{
-  id: 'content-script',
-  matches: ['https://*.google.com/*'],
-  js: [{ file: 'content.js' }],
-  runAt: 'document_end',
-  world: 'USER_SCRIPT'
-}]);
+await UserScripts.update([
+  {
+    id: 'my-script',
+    runAt: 'document_end', // Change the run time
+    js: [{ code: 'console.log("Updated script!");' }],
+  },
+]);
 ```
 
-### Checking Registration Status
-
-Check if a script is already registered before re-registering:
+### List All Registered Scripts
 
 ```typescript
-import { UserScripts } from 'webext-user-scripts';
+const scripts = await UserScripts.getRegistered();
+console.log(`Found ${scripts.length} registered scripts`);
 
-const scriptId = 'my-script';
-
-if (!(await UserScripts.isRegistered(scriptId))) {
-  await UserScripts.register([{
-    id: scriptId,
-    matches: ['https://*.example.com/*'],
-    js: [{ code: '// script content' }],
-    world: 'USER_SCRIPT'
-  }]);
+for (const script of scripts) {
+  console.log(`Script ID: ${script.id}, Matches: ${script.matches?.join(', ')}`);
 }
 ```
 
-### Updating Scripts
-
-Update an existing script's configuration:
+### Check if a Script is Registered
 
 ```typescript
-import { UserScripts } from 'webext-user-scripts';
-
-await UserScripts.update([{
-  id: 'my-script',
-  runAt: 'document_start'  // Change run timing
-}]);
+const isRegistered = await UserScripts.isRegistered('my-script');
+if (isRegistered) {
+  console.log('Script is active!');
+}
 ```
 
-### Getting Script by ID
-
-Retrieve a specific script's configuration:
+### Get a Script by ID
 
 ```typescript
-import { UserScripts } from 'webext-user-scripts';
-
 const script = await UserScripts.getById('my-script');
 if (script) {
-  console.log('Script matches:', script.matches);
+  console.log(`Found script: ${script.id}`);
 }
 ```
 
-## API Reference
+### Unregister a Script
 
-### `UserScripts.register(scripts)`
-
-Registers one or more user scripts.
-
-**Parameters:**
-- `scripts` — Array of `UserScript` objects
-
-**Returns:** `Promise<void>`
-
-**Example:**
-```typescript
-await UserScripts.register([{
-  id: 'my-script',
-  matches: ['https://*/*'],
-  js: [{ code: 'console.log("Hi");' }]
-}]);
-```
-
----
-
-### `UserScripts.getRegistered(filter?)`
-
-Returns all registered user scripts, optionally filtered by IDs.
-
-**Parameters:**
-- `filter` (optional) — Object with `ids` array
-
-**Returns:** `Promise<UserScript[]>`
-
-**Example:**
-```typescript
-const allScripts = await UserScripts.getRegistered();
-const specificScripts = await UserScripts.getRegistered({ ids: ['script-1', 'script-2'] });
-```
-
----
-
-### `UserScripts.unregister(filter?)`
-
-Unregisters one or more user scripts.
-
-**Parameters:**
-- `filter` (optional) — Object with `ids` array. If empty, unregisters all scripts.
-
-**Returns:** `Promise<void>`
-
-**Example:**
 ```typescript
 await UserScripts.unregister({ ids: ['my-script'] });
-// Or unregister all:
-await UserScripts.unregister({});
 ```
 
----
+### Unregister All Scripts
 
-### `UserScripts.unregisterAll()`
-
-Unregisters all registered user scripts.
-
-**Returns:** `Promise<void>`
-
-**Example:**
 ```typescript
 await UserScripts.unregisterAll();
 ```
 
----
+## API Reference
 
-### `UserScripts.update(scripts)`
+| Method | Description | Returns |
+|--------|-------------|---------|
+| `UserScripts.register(scripts)` | Registers one or more user scripts | `Promise<void>` |
+| `UserScripts.getRegistered(filter?)` | Returns all registered user scripts, optionally filtered by IDs | `Promise<UserScript[]>` |
+| `UserScripts.update(scripts)` | Updates one or more existing user scripts | `Promise<void>` |
+| `UserScripts.unregister(filter?)` | Unregisters one or more user scripts by ID | `Promise<void>` |
+| `UserScripts.unregisterAll()` | Unregisters all user scripts | `Promise<void>` |
+| `UserScripts.isRegistered(id)` | Checks if a user script with the given ID is registered | `Promise<boolean>` |
+| `UserScripts.getById(id)` | Gets a registered user script by ID | `Promise<UserScript \| undefined>` |
 
-Updates one or existing user scripts. Only specified properties are updated.
+### Types
 
-**Parameters:**
-- `scripts` — Array of `UserScript` objects with IDs
+#### `UserScript`
 
-**Returns:** `Promise<void>`
-
-**Example:**
 ```typescript
-await UserScripts.update([{
-  id: 'my-script',
-  runAt: 'document_idle'
-}]);
-```
-
----
-
-### `UserScripts.isRegistered(id)`
-
-Checks if a user script with the given ID is registered.
-
-**Parameters:**
-- `id` — Script ID string
-
-**Returns:** `Promise<boolean>`
-
-**Example:**
-```typescript
-const exists = await UserScripts.isRegistered('my-script');
-```
-
----
-
-### `UserScripts.getById(id)`
-
-Gets a registered user script by its ID.
-
-**Parameters:**
-- `id` — Script ID string
-
-**Returns:** `Promise<UserScript | undefined>`
-
-**Example:**
-```typescript
-const script = await UserScripts.getById('my-script');
-if (script) {
-  console.log(script.matches);
+interface UserScript {
+  id: string;
+  matches?: string[];
+  excludeMatches?: string[];
+  js?: { code?: string; file?: string }[];
+  runAt?: 'document_start' | 'document_end' | 'document_idle';
+  allFrames?: boolean;
+  world?: 'USER_SCRIPT' | 'MAIN';
 }
 ```
 
----
+#### `UserScriptFilter`
 
-## UserScript Interface
+```typescript
+interface UserScriptFilter {
+  ids?: string[];
+}
+```
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | `string` | Unique identifier for the script |
-| `matches` | `string[]` | URL patterns where the script should run |
-| `excludeMatches` | `string[]` | URL patterns to exclude |
-| `js` | `{ code?: string; file?: string }[]` | Script content or file paths |
-| `runAt` | `'document_start' \| 'document_end' \| 'document_idle'` | When to inject the script |
-| `allFrames` | `boolean` | Whether to run in all frames |
-| `world` | `'USER_SCRIPT' \| 'MAIN'` | Execution world (isolated vs main) |
+## Permissions
 
-## Permissions Required
+To use the UserScripts API, your extension needs:
 
-To use the User Scripts API, add the following to your `manifest.json`:
+1. **`userScripts` permission** in your `manifest.json`:
 
 ```json
 {
-  "permissions": ["userScripts"],
-  "host_permissions": ["<all_urls>"]
+  "permissions": ["userScripts"]
 }
 ```
 
-**Important:** The User Scripts API requires **Developer Mode** to be enabled in `chrome://extensions`.
+2. **Developer mode** must be enabled in Chrome (users need to enable this manually in `chrome://extensions`)
+
+### Manifest V3 Configuration
+
+Ensure your `manifest.json` is using Manifest V3:
+
+```json
+{
+  "manifest_version": 3
+}
+```
 
 ## Browser Support
 
 | Browser | Minimum Version |
 |---------|-----------------|
 | Chrome | 120+ |
-| Edge | 120+ |
+| Edge | 120+ (Chromium-based) |
 
-> **Note:** The User Scripts API is Chrome/Chromium-only at this time.
+> **Note:** The UserScripts API is a Chrome-specific API. It is not available in Firefox, Safari, or other browsers at this time.
 
 ## Part of @zovo/webext
 
-This package is part of the **@zovo/webext** collection — a set of TypeScript utilities for building Chrome extensions.
+This library is part of the **@zovo/webext** ecosystem — a collection of TypeScript utilities for building Chrome extensions. Check out our other packages for more functionality:
 
-- [@zovo/webext-storage](https://github.com/theluckystrike/webext-storage) — Typed storage API helpers
-- [@zovo/webext-messaging](https://github.com/theluckystrike/webext-messaging) — Type-safe message passing
+- `@zovo/webext` — Core utilities and helpers
 
 ## License
 
-MIT © [theluckystrike](https://github.com/theluckystrike)
+MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 
-[zovo.one](https://zovo.one) · [GitHub](https://github.com/theluckystrike/webext-user-scripts) · [npm](https://www.npmjs.com/package/webext-user-scripts)
+<p align="center">
+  <a href="https://zovo.one">
+    <img src="https://zovo.one/logo.svg" alt="Zovo" width="100" />
+  </a>
+  <br />
+  Part of <a href="https://zovo.one">Zovo</a>
+</p>

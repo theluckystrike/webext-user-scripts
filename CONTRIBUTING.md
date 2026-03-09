@@ -1,96 +1,97 @@
 # Contributing to webext-user-scripts
 
-Thank you for your interest in contributing! This guide will help you get started.
+Thank you for your interest in contributing! This document outlines the process for contributing to this project.
 
 ## Getting Started
 
-### Fork the Repository
+1. **Fork the repository** — Click the "Fork" button on GitHub
+2. **Clone your fork** — `git clone https://github.com/YOUR_USERNAME/webext-user-scripts.git`
+3. **Add the upstream remote** — `git remote add upstream https://github.com/theluckystrike/webext-user-scripts.git`
 
-Click the "Fork" button on the GitHub page to create your own copy of the repository.
+## Development Setup
 
-### Clone Your Fork
+This project uses [pnpm](https://pnpm.io/) for package management. If you don't have pnpm installed, you can install it via:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/webext-user-scripts.git
-cd webext-user-scripts
+npm install -g pnpm
 ```
 
 ### Install Dependencies
-
-This project uses [pnpm](https://pnpm.io/) for package management:
 
 ```bash
 pnpm install
 ```
 
-### Create a Branch
-
-Create a new branch for your feature or fix:
-
-```bash
-git checkout -b feature/your-feature-name
-```
-
-Or for bug fixes:
-
-```bash
-git checkout -b fix/description-of-fix
-```
-
-## Development
-
 ### Build the Project
 
 ```bash
-pnpm build
+pnpm run build
 ```
 
 ### Run Tests
 
 ```bash
-pnpm test
+pnpm run test
 ```
 
-### Type Checking
+## Creating a Branch
+
+Create a new branch for your feature or bugfix:
 
 ```bash
-pnpm typecheck
+git checkout -b feature/your-feature-name
+```
+
+Or for bugfixes:
+
+```bash
+git checkout -b fix/description-of-fix
 ```
 
 ## Making Changes
 
-1. Make your changes in the `src/` directory
-2. Ensure all tests pass: `pnpm test`
-3. Verify the build works: `pnpm build`
-4. Commit your changes with a descriptive message
+1. Make your changes in your feature branch
+2. Ensure the code builds and tests pass
+3. Commit your changes with a clear commit message:
 
-## Pull Request Process
+```bash
+git add .
+git commit -m "Add feature: description of your changes"
+```
 
-1. **Push your branch** to your fork:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
+## Submitting a Pull Request
 
-2. **Open a Pull Request** against the `main` branch of the original repository
+1. Push your branch to your fork:
 
-3. **Describe your changes** clearly in the PR description:
-   - What problem does this fix?
-   - What solution does it provide?
-   - How can reviewers test this?
+```bash
+git push origin feature/your-feature-name
+```
 
-4. **Ensure CI passes** — all tests and builds must succeed
+2. Open a Pull Request against the `main` branch of the original repository
+3. Fill in the PR template with:
+   - A clear description of the changes
+   - Any related issues or context
+   - Testing steps (if applicable)
 
 ## Code Style
 
-- Use TypeScript with strict mode enabled
-- Follow existing code conventions in the project
-- Add JSDoc comments for public APIs
-- Write tests for new functionality
+- Use **TypeScript** for all new code
+- Follow the existing code style (ESLint rules are included)
+- Add type annotations for function parameters and return types
+- Write meaningful variable and function names
+
+## Testing
+
+All new features should include tests. Run the test suite with:
+
+```bash
+pnpm run test
+```
 
 ## Questions?
 
-If you have questions about contributing, feel free to open an issue for discussion.
+If you have questions, feel free to open an issue for discussion before submitting a PR.
 
 ---
 
-Thank you for helping improve **webext-user-scripts**!
+Thank you for contributing!
